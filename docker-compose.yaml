@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  go:
+    build:
+      context: ./
+      dockerfile: go.dockerfile
+    container_name: ${APP_NAME}_go
+    depends_on:
+      - chrome
+    networks:
+      - site_form_checker
+
+  chrome:
+    image: browserless/chrome:latest
+    container_name: ${APP_NAME}_chrome
+    networks:
+      - site_form_checker
+
+networks:
+  site_form_checker:
+    name: site_form_checker
+    driver: bridge
