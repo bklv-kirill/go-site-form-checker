@@ -51,7 +51,7 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	ctx, cancel = chromedp.NewRemoteAllocator(ctx, "http://chrome:3000")
+	ctx, cancel = chromedp.NewRemoteAllocator(ctx, "http://127.0.0.1:9222")
 	defer cancel()
 
 	ctx, cancel = chromedp.NewContext(ctx)

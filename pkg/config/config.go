@@ -35,11 +35,11 @@ func New() *Cfg {
 		AppName: getEnvAsString("APP_NAME", "SiteFormChecker"),
 
 		DbCon:  getEnvAsString("DB_CON", "mysql"),
-		DbHost: getEnvAsString("DB_HOST", "localhost"),
+		DbHost: getEnvAsString("DB_HOST", "127.0.0.1"),
 		DbPort: getEnvAsString("DB_PORT", "3306"),
 		DbUser: getEnvAsString("DB_USER", "root"),
 		DbPass: getEnvAsString("DB_PASS", ""),
-		DbName: getEnvAsString("DB_NAME", ""),
+		DbName: getEnvAsString("DB_NAME", "site_form_checker"),
 
 		CrmUrl:   getEnvAsString("CRM_URL", ""),
 		CrmToken: getEnvAsString("CRM_TOKEN", ""),
@@ -60,7 +60,6 @@ func getEnvAsString(key string, def string) string {
 
 func getEnvAsInt(key string, def int) int {
 	var str string = getEnvAsString(key, "")
-
 	if val, err := strconv.Atoi(str); err == nil {
 		return val
 	} else {
