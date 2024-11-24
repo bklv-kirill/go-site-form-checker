@@ -23,8 +23,9 @@ type Cfg struct {
 	DbPass string
 	DbName string
 
-	CrmUrl   string
-	CrmToken string
+	CrmUrl      string
+	CrmToken    string
+	CrmAttempts int
 
 	TelegramChatId    string
 	TelegramToken     string
@@ -45,8 +46,9 @@ func New() *Cfg {
 		DbPass: getEnvAsString("DB_PASS", ""),
 		DbName: getEnvAsString("DB_NAME", "site_form_checker"),
 
-		CrmUrl:   getEnvAsString("CRM_URL", ""),
-		CrmToken: getEnvAsString("CRM_TOKEN", ""),
+		CrmUrl:      getEnvAsString("CRM_URL", ""),
+		CrmToken:    getEnvAsString("CRM_TOKEN", ""),
+		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 3),
 
 		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
 		TelegramToken:     getEnvAsString("TELEGRAM_TOKEN", ""),

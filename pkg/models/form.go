@@ -235,7 +235,7 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", cfg.CrmUrl, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, cfg.CrmUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -249,15 +249,27 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 		Timeout: 10 * time.Second,
 	}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+	var att int = 0
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf(resp.Status)
+	var clsr func() error
+	clsr = func() error {
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			att++
+			if att >= cfg.CrmAttempts {
+				return fmt.Errorf(resp.Status)
+			}
+
+			return clsr()
+		}
+
+		return nil
 	}
 
-	return nil
+	return clsr()
 }
