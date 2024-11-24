@@ -265,6 +265,8 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 				return fmt.Errorf(resp.Status)
 			}
 
+			time.Sleep(5 * time.Second)
+
 			return clsr()
 		}
 
