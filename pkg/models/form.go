@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bklv-kirill/go-site-form-checker/pkg/config"
+	"github.com/bklv-kirill/go-site-form-checker/pkg/telegram"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/google/uuid"
@@ -44,9 +45,9 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 		<-ch
 	}()
 
-	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
+	var tg *telegram.Telegram = telegram.New(cfg)
 
-	log.Printf("Проверка запущена. %s", genMsg)
+	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -59,7 +60,7 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 
 	if cfg.DebugMode {
 		chromedp.ListenTarget(ctx, func(ev interface{}) {
-			if msg, ok := ev.(*runtime.EventConsoleAPICalled); ok {
+			if msg, err := ev.(*runtime.EventConsoleAPICalled); err {
 				for _, arg := range msg.Args {
 					if arg.Value != nil {
 						log.Printf("Сonsole [%s]: %s\n", msg.Type, arg.Value)
@@ -74,22 +75,26 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	if cfg.DebugMode {
 		log.Printf("Переход на сайт %s\n", f.Url)
 	}
-	var err error = chromedp.Run(ctx,
+	if err := chromedp.Run(ctx,
 		chromedp.Navigate(f.Url),
-	)
-	if err != nil {
-		log.Printf("Ошибка при переходе на сайт: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при переходе на сайт: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
 	if cfg.DebugMode {
 		log.Printf("Ожидание: 5 секунд")
 	}
-	err = chromedp.Run(ctx,
+	if err := chromedp.Run(ctx,
 		chromedp.Sleep(5*time.Second),
-	)
-	if err != nil {
-		log.Printf("Ошибка при ожидании: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при ожидании: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
@@ -98,22 +103,26 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	}
 	wCtx, wCancel := context.WithTimeout(ctx, 15*time.Second)
 	defer wCancel()
-	err = chromedp.Run(wCtx,
+	if err := chromedp.Run(wCtx,
 		chromedp.WaitVisible(f.ElemForClick, chromedp.ByQuery),
-	)
-	if err != nil {
-		log.Printf("Ошибка при ожидании элемента для нажатия: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при ожидании элемента для нажатия: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
 	if cfg.DebugMode {
 		log.Println("Имитация клика на элемент для нажатия")
 	}
-	err = chromedp.Run(ctx,
+	if err := chromedp.Run(ctx,
 		chromedp.Evaluate(fmt.Sprintf("document.querySelector('%s').click()", f.ElemForClick), nil),
-	)
-	if err != nil {
-		log.Printf("Ошибка при клике на элемент для нажатия: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при клике на элемент для нажатия: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
@@ -122,11 +131,13 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	}
 	wCtx, wCancel = context.WithTimeout(ctx, 15*time.Second)
 	defer wCancel()
-	err = chromedp.Run(wCtx,
+	if err := chromedp.Run(wCtx,
 		chromedp.WaitVisible(f.ExpElem, chromedp.ByQuery),
-	)
-	if err != nil {
-		log.Printf("Ошибка при ожидании элемента для взаимодействия: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при ожидании элемента для взаимодействия: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
@@ -140,11 +151,13 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 			i.Value = leadUuid
 		}
 
-		err = chromedp.Run(ctx,
+		if err := chromedp.Run(ctx,
 			chromedp.SendKeys(fmt.Sprintf("%s %s", f.ExpElem, i.Selector), i.Value),
-		)
-		if err != nil {
-			log.Printf("Ошибка при заполнении формы: %v | %s", err, genMsg)
+		); err != nil {
+			if err = tg.SendMessage(fmt.Sprintf("Ошибка при заполнении формы: %v | %s", err, genMsg)); err != nil {
+				log.Println(err)
+			}
+
 			return
 		}
 	}
@@ -153,11 +166,13 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 		log.Println("Проверка формы")
 		for _, i := range f.Inputs {
 			var val string
-			err = chromedp.Run(ctx,
+			if err := chromedp.Run(ctx,
 				chromedp.Value(fmt.Sprintf("%s %s", f.ExpElem, i.Selector), &val, chromedp.ByQuery),
-			)
-			if err != nil {
-				log.Printf("Ошибка при проверке формы: %v | %s", err, genMsg)
+			); err != nil {
+				if err = tg.SendMessage(fmt.Sprintf("Ошибка при проверке формы: %v | %s", err, genMsg)); err != nil {
+					log.Println(err)
+				}
+
 				return
 			}
 
@@ -168,11 +183,13 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	if cfg.DebugMode {
 		log.Println("Отправка формы")
 	}
-	err = chromedp.Run(ctx,
+	if err := chromedp.Run(ctx,
 		chromedp.Evaluate(fmt.Sprintf("document.querySelector('%s %s').click()", f.ExpElem, f.SubmitElem), nil),
-	)
-	if err != nil {
-		log.Printf("Ошибка при отправке формы: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при отправке формы: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
@@ -181,37 +198,31 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	}
 	wCtx, wCancel = context.WithTimeout(ctx, 15*time.Second)
 	defer wCancel()
-	err = chromedp.Run(wCtx,
+	if err := chromedp.Run(wCtx,
 		chromedp.WaitVisible(f.ResElem, chromedp.ByQuery),
-	)
-	if err != nil {
-		log.Printf("Ошибка при ожидании появления результирующего элемента: %v | %s", err, genMsg)
+	); err != nil {
+		if err = tg.SendMessage(fmt.Sprintf("Ошибка при ожидании появления результирующего элемента: %v | %s", err, genMsg)); err != nil {
+			log.Println(err)
+		}
+
 		return
 	}
 
 	if cfg.DebugMode == false && leadUuid != "" {
 		time.Sleep(10 * time.Second)
 
-		if err = checkInCRM(leadUuid, cfg); err != nil {
-			log.Printf("Ошибка при проверке лида в CRM: %v | %s", err, genMsg)
+		if err := checkInCRM(leadUuid, cfg); err != nil {
+			if err = tg.SendMessage(fmt.Sprintf("Ошибка при проверке лида в CRM: %v | %s", err, genMsg)); err != nil {
+				log.Println(err)
+			}
+
 			return
 		}
 	}
 
-	// ------------------------------------
-	//log.Println("Получение содержимого <body>")
-	//var body string
-	//err = chromedp.Run(ctx,
-	//	chromedp.OuterHTML("body", &body, chromedp.ByQuery),
-	//)
-	//if err != nil {
-	//	log.Fatalf("Ошибка при получении содержимого <body>: %v | %s", err, genMsg)
-	//	return
-	//}
-	//log.Printf("Содержимое <body>:\n%s\n", body)
-	//------------------------------------
-
-	log.Printf("Проверка завершена успушно. Название: %s | Ссылка: %s \n", f.Name, f.Url)
+	if err := tg.SendMessage(fmt.Sprintf("Проверка завершена успушно. Название: %s | Ссылка: %s \n", f.Name, f.Url)); err != nil {
+		log.Println(err)
+	}
 }
 
 func checkInCRM(leadUuid string, cfg *config.Cfg) error {
@@ -237,6 +248,7 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 	var client http.Client = http.Client{
 		Timeout: 10 * time.Second,
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

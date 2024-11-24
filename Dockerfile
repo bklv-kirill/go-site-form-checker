@@ -3,6 +3,7 @@ FROM golang:alpine
 RUN apk update --no-cache && \
     apk upgrade --no-cache
 
+RUN mkdir build
 WORKDIR /build
 
 COPY . .

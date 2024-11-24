@@ -26,6 +26,10 @@ type Cfg struct {
 	CrmUrl   string
 	CrmToken string
 
+	TelegramChatId    string
+	TelegramToken     string
+	TelegramParseMode string
+
 	DebugMode     bool
 	MaxGoroutines int
 }
@@ -44,34 +48,39 @@ func New() *Cfg {
 		CrmUrl:   getEnvAsString("CRM_URL", ""),
 		CrmToken: getEnvAsString("CRM_TOKEN", ""),
 
+		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
+		TelegramToken:     getEnvAsString("TELEGRAM_TOKEN", ""),
+		TelegramParseMode: getEnvAsString("TELEGRAM_PARSE_MODE", ""),
+
 		DebugMode:     getEnvAsBool("DEBUG_MODE", true),
 		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 5),
 	}
 }
 
 func getEnvAsString(key string, def string) string {
-	str, exists := os.LookupEnv(key)
-	if exists && str != "" {
+	if str, exists := os.LookupEnv(key); exists {
 		return str
-	} else {
-		return def
 	}
+
+	return def
 }
 
 func getEnvAsInt(key string, def int) int {
 	var str string = getEnvAsString(key, "")
+
 	if val, err := strconv.Atoi(str); err == nil {
 		return val
-	} else {
-		return def
 	}
+
+	return def
 }
 
 func getEnvAsBool(key string, def bool) bool {
 	var str string = getEnvAsString(key, "")
+
 	if val, err := strconv.ParseBool(str); err == nil {
 		return val
-	} else {
-		return def
 	}
+
+	return def
 }
