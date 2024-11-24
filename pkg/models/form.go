@@ -208,7 +208,7 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 		return
 	}
 
-	if cfg.DebugMode == false && leadUuid != "" {
+	if leadUuid != "" {
 		time.Sleep(10 * time.Second)
 
 		if err := checkInCRM(leadUuid, cfg); err != nil {
@@ -253,6 +253,8 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 
 	var clsr func() error
 	clsr = func() error {
+		att++
+
 		resp, err := client.Do(req)
 		if err != nil {
 			return err
@@ -260,7 +262,10 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			att++
+			if cfg.DebugMode {
+				log.Printf("Ошибка при проверке лида в CRM | Попытка %d из %d\n", att, cfg.CrmAttempts)
+			}
+
 			if att >= cfg.CrmAttempts {
 				return fmt.Errorf(resp.Status)
 			}

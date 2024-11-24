@@ -48,7 +48,7 @@ func New() *Cfg {
 
 		CrmUrl:      getEnvAsString("CRM_URL", ""),
 		CrmToken:    getEnvAsString("CRM_TOKEN", ""),
-		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 3),
+		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 5),
 
 		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
 		TelegramToken:     getEnvAsString("TELEGRAM_TOKEN", ""),
