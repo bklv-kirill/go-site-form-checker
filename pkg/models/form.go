@@ -208,6 +208,9 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 		return
 	}
 
+	if cfg.DebugMode {
+		log.Println("Проверка лида в CRM")
+	}
 	if leadUuid != "" {
 		time.Sleep(10 * time.Second)
 
