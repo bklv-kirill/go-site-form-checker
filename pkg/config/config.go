@@ -14,8 +14,6 @@ func init() {
 }
 
 type Cfg struct {
-	AppName string
-
 	DbCon  string
 	DbHost string
 	DbPort string
@@ -37,8 +35,6 @@ type Cfg struct {
 
 func New() *Cfg {
 	return &Cfg{
-		AppName: getEnvAsString("APP_NAME", "SiteFormChecker"),
-
 		DbCon:  getEnvAsString("DB_CON", "mysql"),
 		DbHost: getEnvAsString("DB_HOST", "127.0.0.1"),
 		DbPort: getEnvAsString("DB_PORT", "3306"),
@@ -52,7 +48,7 @@ func New() *Cfg {
 
 		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
 		TelegramToken:     getEnvAsString("TELEGRAM_TOKEN", ""),
-		TelegramParseMode: getEnvAsString("TELEGRAM_PARSE_MODE", ""),
+		TelegramParseMode: getEnvAsString("TELEGRAM_PARSE_MODE", "html"),
 
 		DebugMode:     getEnvAsBool("DEBUG_MODE", true),
 		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 5),
