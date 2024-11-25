@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -39,12 +38,7 @@ type Input struct {
 	UpdatedAt string `db:"updated_at" json:"updated_at"`
 }
 
-func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
-	defer func() {
-		wg.Done()
-		<-ch
-	}()
-
+func (f *Form) Check(cfg *config.Cfg) {
 	var tg *telegram.Telegram = telegram.New(cfg)
 
 	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
