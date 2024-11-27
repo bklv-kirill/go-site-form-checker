@@ -10,19 +10,20 @@ import (
 )
 
 const (
+	BotUrl            string = "https://api.telegram.org/bot"
 	MethodSendMessage string = "sendMessage"
 )
 
 type Telegram struct {
 	ChatId    string `json:"chat_id"`
-	Token     string `json:"token"`
+	BotToken  string `json:"bot_token"`
 	ParseMode string `json:"parse_mode"`
 }
 
 func New(cfg *config.Cfg) *Telegram {
 	return &Telegram{
 		ChatId:    cfg.TelegramChatId,
-		Token:     cfg.TelegramToken,
+		BotToken:  cfg.TelegramBotToken,
 		ParseMode: cfg.TelegramParseMode,
 	}
 }
@@ -40,7 +41,7 @@ func (t *Telegram) SendMessage(text string) error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.telegram.org/bot%s/%s", t.Token, MethodSendMessage), bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s%s/%s", BotUrl, t.BotToken, MethodSendMessage), bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}

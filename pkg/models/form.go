@@ -34,7 +34,7 @@ type Input struct {
 	FormId    int    `db:"form_id" json:"form_id"`
 	Selector  string `db:"selector" json:"selector"`
 	Value     string `db:"value" json:"value"`
-	Uuid      bool   `db:"uuid" json:"uuid"`
+	ForUuid   bool   `db:"for_uuid" json:"for_uuid"`
 	CreatedAt string `db:"created_at" json:"created_at"`
 	UpdatedAt string `db:"updated_at" json:"updated_at"`
 }
@@ -49,7 +49,7 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 
 	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*60*time.Second)
 	defer cancel()
 
 	ctx, cancel = chromedp.NewRemoteAllocator(ctx, "http://127.0.0.1:9222")
@@ -146,7 +146,7 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 	}
 	var leadUuid string
 	for _, i := range f.Inputs {
-		if i.Uuid {
+		if i.ForUuid {
 			leadUuid = fmt.Sprintf("SFC - %s", uuid.New())
 			i.Value = leadUuid
 		}
@@ -212,8 +212,6 @@ func (f *Form) Check(wg *sync.WaitGroup, ch chan struct{}, cfg *config.Cfg) {
 		log.Println("Проверка лида в CRM")
 	}
 	if leadUuid != "" {
-		time.Sleep(10 * time.Second)
-
 		if err := checkInCRM(leadUuid, cfg); err != nil {
 			if err = tg.SendMessage(fmt.Sprintf("Ошибка при проверке лида в CRM: %v | %s", err, genMsg)); err != nil {
 				log.Println(err)
@@ -256,6 +254,8 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 
 	var clsr func() error
 	clsr = func() error {
+		time.Sleep(10 * time.Second)
+
 		att++
 
 		resp, err := client.Do(req)
@@ -272,8 +272,6 @@ func checkInCRM(leadUuid string, cfg *config.Cfg) error {
 			if att >= cfg.CrmAttempts {
 				return fmt.Errorf(resp.Status)
 			}
-
-			time.Sleep(10 * time.Second)
 
 			return clsr()
 		}

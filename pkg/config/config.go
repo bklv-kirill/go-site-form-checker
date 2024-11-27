@@ -26,7 +26,7 @@ type Cfg struct {
 	CrmAttempts int
 
 	TelegramChatId    string
-	TelegramToken     string
+	TelegramBotToken  string
 	TelegramParseMode string
 
 	DebugMode     bool
@@ -44,14 +44,14 @@ func New() *Cfg {
 
 		CrmUrl:      getEnvAsString("CRM_URL", ""),
 		CrmToken:    getEnvAsString("CRM_TOKEN", ""),
-		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 5),
+		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 10),
 
 		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
-		TelegramToken:     getEnvAsString("TELEGRAM_TOKEN", ""),
+		TelegramBotToken:  getEnvAsString("TELEGRAM_BOT_TOKEN", ""),
 		TelegramParseMode: getEnvAsString("TELEGRAM_PARSE_MODE", "html"),
 
 		DebugMode:     getEnvAsBool("DEBUG_MODE", true),
-		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 5),
+		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 10),
 	}
 }
 
