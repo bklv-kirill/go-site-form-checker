@@ -111,6 +111,12 @@ func Check(f *form.Form, wg *sync.WaitGroup, ch <-chan struct{}) {
 			return
 		}
 	}
+
+	if err := tg.SendMessage(fmt.Sprintf("Проверка формы успешно завершена | %s", genMsg)); err != nil {
+		log.Printf("%v+\n", err)
+
+		return
+	}
 }
 
 func goToSite(ctx *context.Context, url string) error {
