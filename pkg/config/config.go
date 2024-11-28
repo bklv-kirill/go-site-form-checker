@@ -13,7 +13,7 @@ func init() {
 	}
 }
 
-type Cfg struct {
+type Config struct {
 	DbCon  string
 	DbHost string
 	DbPort string
@@ -33,8 +33,8 @@ type Cfg struct {
 	MaxGoroutines int
 }
 
-func New() *Cfg {
-	return &Cfg{
+func New() *Config {
+	return &Config{
 		DbCon:  getEnvAsString("DB_CON", "mysql"),
 		DbHost: getEnvAsString("DB_HOST", "127.0.0.1"),
 		DbPort: getEnvAsString("DB_PORT", "3306"),

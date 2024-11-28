@@ -20,7 +20,7 @@ type Telegram struct {
 	ParseMode string `json:"parse_mode"`
 }
 
-func New(cfg *config.Cfg) *Telegram {
+func New(cfg *config.Config) *Telegram {
 	return &Telegram{
 		ChatId:    cfg.TelegramChatId,
 		BotToken:  cfg.TelegramBotToken,

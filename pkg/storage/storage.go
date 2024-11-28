@@ -12,7 +12,7 @@ type FormSQLStorage struct {
 	Db *sqlx.DB
 }
 
-func New(cfg *config.Cfg) (*FormSQLStorage, error) {
+func New(cfg *config.Config) (*FormSQLStorage, error) {
 	db, err := sqlx.Connect(cfg.DbCon, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.DbUser, cfg.DbPass, cfg.DbHost, cfg.DbPort, cfg.DbName))
 	if err != nil {
 		return nil, err
