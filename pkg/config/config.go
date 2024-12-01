@@ -21,16 +21,26 @@ type Config struct {
 	DbPass string
 	DbName string
 
-	CrmUrl      string
-	CrmToken    string
-	CrmAttempts int
+	DebugMode     bool
+	MaxGoroutines int
+
+	RemoteBrowserSchema string
+	RemoteBrowserUrl    string
+	RemoteBrowserPort   string
+	WaitElemTimeout     int
+
+	SendFormAttempts   int
+	SendFormTimeout    int
+	SendFormRetryDelay int
+
+	CrmUrl        string
+	CrmToken      string
+	CrmAttempts   int
+	CrmRetryDelay int
 
 	TelegramChatId    string
 	TelegramBotToken  string
 	TelegramParseMode string
-
-	DebugMode     bool
-	MaxGoroutines int
 }
 
 func New() *Config {
@@ -42,16 +52,26 @@ func New() *Config {
 		DbPass: getEnvAsString("DB_PASS", ""),
 		DbName: getEnvAsString("DB_NAME", "site_form_checker"),
 
-		CrmUrl:      getEnvAsString("CRM_URL", ""),
-		CrmToken:    getEnvAsString("CRM_TOKEN", ""),
-		CrmAttempts: getEnvAsInt("CRM_ATTEMPTS", 10),
+		DebugMode:     getEnvAsBool("DEBUG_MODE", true),
+		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 10),
+
+		RemoteBrowserSchema: getEnvAsString("REMOTE_BROWSER_SCHEMA", "http"),
+		RemoteBrowserUrl:    getEnvAsString("REMOTE_BROWSER_URL", "127.0.0.1"),
+		RemoteBrowserPort:   getEnvAsString("REMOTE_BROWSER_PORT", "9222"),
+		WaitElemTimeout:     getEnvAsInt("WAIT_ELEM_TIMEOUT", 15),
+
+		SendFormAttempts:   getEnvAsInt("SEND_FORM_ATTEMPTS", 3),
+		SendFormTimeout:    getEnvAsInt("SEND_FORM_TIMEOUT", 60),
+		SendFormRetryDelay: getEnvAsInt("SEND_FORM_RETRY_DELAY", 10),
+
+		CrmUrl:        getEnvAsString("CRM_URL", ""),
+		CrmToken:      getEnvAsString("CRM_TOKEN", ""),
+		CrmAttempts:   getEnvAsInt("CRM_ATTEMPTS", 3),
+		CrmRetryDelay: getEnvAsInt("CRM_RETRY_DELAY", 10),
 
 		TelegramChatId:    getEnvAsString("TELEGRAM_CHAT_ID", ""),
 		TelegramBotToken:  getEnvAsString("TELEGRAM_BOT_TOKEN", ""),
 		TelegramParseMode: getEnvAsString("TELEGRAM_PARSE_MODE", "html"),
-
-		DebugMode:     getEnvAsBool("DEBUG_MODE", true),
-		MaxGoroutines: getEnvAsInt("MAX_GOROUTINES", 10),
 	}
 }
 

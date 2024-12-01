@@ -1,4 +1,4 @@
-package telegram
+package services
 
 import (
 	"bytes"
@@ -9,8 +9,9 @@ import (
 	"time"
 )
 
+const BotUrl string = "https://api.telegram.org/bot"
+
 const (
-	BotUrl            string = "https://api.telegram.org/bot"
 	MethodSendMessage string = "sendMessage"
 )
 
@@ -20,7 +21,7 @@ type Telegram struct {
 	ParseMode string `json:"parse_mode"`
 }
 
-func New(cfg *config.Config) *Telegram {
+func NewTelegram(cfg *config.Config) *Telegram {
 	return &Telegram{
 		ChatId:    cfg.TelegramChatId,
 		BotToken:  cfg.TelegramBotToken,
@@ -52,6 +53,7 @@ func (t *Telegram) SendMessage(text string) error {
 	var client http.Client = http.Client{
 		Timeout: 10 * time.Second,
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
