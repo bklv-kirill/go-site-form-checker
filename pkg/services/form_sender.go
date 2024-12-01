@@ -59,7 +59,7 @@ func (fs *FormSender) execSendForm(f *form.Form) (string, error) {
 	defer cancel()
 
 	ctx, cancel = chromedp.NewRemoteAllocator(
-		context.Background(),
+		ctx,
 		fmt.Sprintf("%s://%s:%s", fs.RemoteBrowserSchema, fs.RemoteBrowserUrl, fs.RemoteBrowserPort),
 	)
 	defer cancel()
