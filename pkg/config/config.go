@@ -27,7 +27,6 @@ type Config struct {
 	RemoteBrowserSchema string
 	RemoteBrowserUrl    string
 	RemoteBrowserPort   string
-	WaitElemTimeout     int
 
 	SendFormAttempts   int
 	SendFormTimeout    int
@@ -58,7 +57,6 @@ func New() *Config {
 		RemoteBrowserSchema: getEnvAsString("REMOTE_BROWSER_SCHEMA", "http"),
 		RemoteBrowserUrl:    getEnvAsString("REMOTE_BROWSER_URL", "127.0.0.1"),
 		RemoteBrowserPort:   getEnvAsString("REMOTE_BROWSER_PORT", "9222"),
-		WaitElemTimeout:     getEnvAsInt("WAIT_ELEM_TIMEOUT", 15),
 
 		SendFormAttempts:   getEnvAsInt("SEND_FORM_ATTEMPTS", 3),
 		SendFormTimeout:    getEnvAsInt("SEND_FORM_TIMEOUT", 60),

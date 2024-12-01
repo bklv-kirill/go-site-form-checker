@@ -60,9 +60,13 @@ func (crm *Crm) CheckLeadByUuid(leadUuid string) error {
 
 		if resp.StatusCode == http.StatusOK {
 			return nil
-		} else if try == crm.Attempts {
+		}
+
+		if try == crm.Attempts {
 			return fmt.Errorf(resp.Status)
-		} else if crm.DebugMode {
+		}
+
+		if crm.DebugMode {
 			log.Printf("Ошибка при проверке лида в CRM | uuid: %s | Повторная попытка...", leadUuid)
 		}
 

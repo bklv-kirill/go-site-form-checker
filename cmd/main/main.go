@@ -41,25 +41,23 @@ func main() {
 				<-ch
 			}()
 
+			var resMsg string
+
 			leadUuid, err := fsndr.SendForm(f)
 			if err != nil {
-				if err := tg.SendMessage(err.Error()); err != nil {
-					log.Println(err)
+				resMsg = err.Error()
+			} else if leadUuid != "" {
+				if err := crm.CheckLeadByUuid(leadUuid); err != nil {
+					resMsg = err.Error()
+				} else {
+					resMsg = fmt.Sprintf("Проверка формы успешно завершена | Название: %s | Ссылка: %s", f.Name, f.Url)
 				}
-
-				return
+			} else {
+				resMsg = fmt.Sprintf("Форма успешно отправленна (без uuid) | Название: %s | Ссылка: %s", f.Name, f.Url)
 			}
 
-			if err := crm.CheckLeadByUuid(leadUuid); err != nil {
-				if err := tg.SendMessage(err.Error()); err != nil {
-					log.Println(err)
-				}
-
-				return
-			}
-
-			if err := tg.SendMessage(fmt.Sprintf("Проверка формы успешно завершена | Название: %s | Ссылка: %s", f.Name, f.Url)); err != nil {
-				log.Println(err)
+			if err := tg.SendMessage(resMsg); err != nil {
+				log.Println(err.Error())
 			}
 		}(&wg, ch, &f)
 	}

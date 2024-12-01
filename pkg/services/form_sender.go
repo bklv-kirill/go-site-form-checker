@@ -16,7 +16,6 @@ type FormSender struct {
 	RemoteBrowserSchema string `json:"remote_browser_schema"`
 	RemoteBrowserUrl    string `json:"remote_browser_url"`
 	RemoteBrowserPort   string `json:"remote_browser_port"`
-	WaitElemTimeout     int    `json:"wait_elem_timeout"`
 	Attempts            int    `json:"attempts"`
 	Timeout             int    `json:"timeout"`
 	RetryDelay          int    `json:"retry_delay"`
@@ -28,7 +27,6 @@ func NewFormSender(cfg *config.Config) *FormSender {
 		RemoteBrowserSchema: cfg.RemoteBrowserSchema,
 		RemoteBrowserUrl:    cfg.RemoteBrowserUrl,
 		RemoteBrowserPort:   cfg.RemoteBrowserPort,
-		WaitElemTimeout:     cfg.WaitElemTimeout,
 		Attempts:            cfg.SendFormAttempts,
 		Timeout:             cfg.SendFormTimeout,
 		RetryDelay:          cfg.SendFormRetryDelay,
@@ -42,9 +40,13 @@ func (fs *FormSender) SendForm(f *form.Form) (string, error) {
 		leadUuid, err := fs.execSendForm(f)
 		if err == nil {
 			return leadUuid, nil
-		} else if att == fs.Attempts {
+		}
+
+		if att == fs.Attempts {
 			return "", fmt.Errorf("%s %s", err.Error(), genMsg)
-		} else if fs.DebugMode {
+		}
+
+		if fs.DebugMode {
 			log.Printf("Ошибка при отправки формы | %s | %s | Повторная попытка...", err.Error(), genMsg)
 		}
 
@@ -127,11 +129,9 @@ func (fs *FormSender) chromedpWait(ctx context.Context, sec int) error {
 
 func (fs *FormSender) waitElemForClick(ctx context.Context, elemForClick string) error {
 	if fs.DebugMode {
-		log.Printf("Ожидание появления элемента для нажатия | %d секунд\n", fs.WaitElemTimeout)
+		log.Println("Ожидание появления элемента для нажатия")
 	}
-	wCtx, wCancel := context.WithTimeout(ctx, time.Duration(fs.WaitElemTimeout)*time.Second)
-	defer wCancel()
-	if err := chromedp.Run(wCtx, chromedp.WaitVisible(elemForClick, chromedp.ByQuery)); err != nil {
+	if err := chromedp.Run(ctx, chromedp.WaitVisible(elemForClick, chromedp.ByQuery)); err != nil {
 		return fmt.Errorf("Ошибка при ожидании элемента для нажатия: %s", err.Error())
 	}
 
@@ -151,11 +151,9 @@ func (fs *FormSender) evaluateClickOnElem(ctx context.Context, elemForClick stri
 
 func (fs *FormSender) waitExpElem(ctx context.Context, expElem string) error {
 	if fs.DebugMode {
-		log.Printf("Ожидание появления элемента для взаимодействия | %d секунд\n", fs.WaitElemTimeout)
+		log.Println("Ожидание появления элемента для взаимодействия")
 	}
-	wCtx, wCancel := context.WithTimeout(ctx, time.Duration(fs.WaitElemTimeout)*time.Second)
-	defer wCancel()
-	if err := chromedp.Run(wCtx, chromedp.WaitVisible(expElem, chromedp.ByQuery)); err != nil {
+	if err := chromedp.Run(ctx, chromedp.WaitVisible(expElem, chromedp.ByQuery)); err != nil {
 		return fmt.Errorf("Ошибка при ожидании элемента для взаимодействия: %s", err.Error())
 	}
 
@@ -194,11 +192,9 @@ func (fs *FormSender) sendForm(ctx context.Context, f *form.Form) error {
 
 func (fs *FormSender) waitResElem(ctx context.Context, resElem string) error {
 	if fs.DebugMode {
-		log.Printf("Ожидание появления результирующего элемента | %d секунд\n", fs.WaitElemTimeout)
+		log.Println("Ожидание появления результирующего элемента")
 	}
-	wCtx, wCancel := context.WithTimeout(ctx, time.Duration(fs.WaitElemTimeout)*time.Second)
-	defer wCancel()
-	if err := chromedp.Run(wCtx, chromedp.WaitVisible(resElem, chromedp.ByQuery)); err != nil {
+	if err := chromedp.Run(ctx, chromedp.WaitVisible(resElem, chromedp.ByQuery)); err != nil {
 		return fmt.Errorf("Ошибка при ожидании появления результирующего элемента: %s", err.Error())
 	}
 
