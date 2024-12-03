@@ -36,13 +36,13 @@ func NewFormSender(cfg *config.Config) *FormSender {
 func (fs *FormSender) SendForm(f *form.Form) (string, error) {
 	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
 
-	for att := 1; att <= fs.Attempts; att++ {
+	for a := 1; a <= fs.Attempts; a++ {
 		leadUuid, err := fs.execSendForm(f)
 		if err == nil {
 			return leadUuid, nil
 		}
 
-		if att == fs.Attempts {
+		if a == fs.Attempts {
 			return "", fmt.Errorf("%s %s", err.Error(), genMsg)
 		}
 

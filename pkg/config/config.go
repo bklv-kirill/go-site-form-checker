@@ -9,7 +9,7 @@ import (
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Файл .env не найден: %s", err)
+		log.Fatalf("Файл .env не найден: %s", err.Error())
 	}
 }
 

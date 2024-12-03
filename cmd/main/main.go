@@ -15,12 +15,12 @@ func main() {
 
 	formSqlStrg, err := formStorage.NewFormSqlStorage(cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 
 	fs, err := formSqlStrg.GetAllWithInputs()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 
 	var fsndr *services.FormSender = services.NewFormSender(cfg)
@@ -32,10 +32,9 @@ func main() {
 
 	for _, f := range fs {
 		wg.Add(1)
-
 		ch <- struct{}{}
 
-		go func(wg *sync.WaitGroup, ch chan struct{}, f *form.Form) {
+		go func(wg *sync.WaitGroup, ch <-chan struct{}, f *form.Form) {
 			defer func() {
 				wg.Done()
 				<-ch

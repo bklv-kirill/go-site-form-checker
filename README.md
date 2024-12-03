@@ -102,9 +102,3 @@ CREATE TABLE IF NOT EXISTS `inputs`
       инпута;
     * `CreatedAt` `Тип: string` `Теги: 'db:"created_at" json:"created_at"'` - дата создания записи в базе данных;
     * `UpdatedAt` `Тип: string` `Теги: 'db:"updated_at" json:"updated_at"'` - дата обновления записи в базе данных;
-
-***
-
-# Выполнение программы
-
-***

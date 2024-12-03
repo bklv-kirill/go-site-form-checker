@@ -52,7 +52,7 @@ func (crm *Crm) CheckLeadByUuid(leadUuid string) error {
 		Timeout: 180 * time.Second,
 	}
 
-	for try := 1; try <= crm.Attempts; try++ {
+	for a := 1; a <= crm.Attempts; a++ {
 		resp, err := client.Do(req)
 		if err != nil {
 			return err
@@ -62,7 +62,7 @@ func (crm *Crm) CheckLeadByUuid(leadUuid string) error {
 			return nil
 		}
 
-		if try == crm.Attempts {
+		if a == crm.Attempts {
 			return fmt.Errorf(resp.Status)
 		}
 
