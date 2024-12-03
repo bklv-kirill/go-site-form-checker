@@ -34,8 +34,6 @@ func NewFormSender(cfg *config.Config) *FormSender {
 }
 
 func (fs *FormSender) SendForm(f *form.Form) (string, error) {
-	var genMsg string = fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
-
 	for a := 1; a <= fs.Attempts; a++ {
 		leadUuid, err := fs.execSendForm(f)
 		if err == nil {
@@ -43,17 +41,17 @@ func (fs *FormSender) SendForm(f *form.Form) (string, error) {
 		}
 
 		if a == fs.Attempts {
-			return "", fmt.Errorf("%s %s", err.Error(), genMsg)
+			return "", fmt.Errorf("%s %s", err.Error(), f.GetPrevMsg())
 		}
 
 		if fs.DebugMode {
-			log.Printf("Ошибка при отправки формы | %s | %s | Повторная попытка...", err.Error(), genMsg)
+			log.Printf("Ошибка при отправки формы | %s | %s | Повторная попытка...", err.Error(), f.GetPrevMsg())
 		}
 
 		time.Sleep(time.Duration(fs.RetryDelay) * time.Second)
 	}
 
-	return "", fmt.Errorf("При отправке формы произошла неизвестная ошибка | %s", genMsg)
+	return "", fmt.Errorf("При отправке формы произошла неизвестная ошибка | %s", f.GetPrevMsg())
 }
 
 func (fs *FormSender) execSendForm(f *form.Form) (string, error) {

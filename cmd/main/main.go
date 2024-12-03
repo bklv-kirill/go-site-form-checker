@@ -46,17 +46,23 @@ func main() {
 			if err != nil {
 				resMsg = err.Error()
 			} else if leadUuid != "" {
-				if err := crm.CheckLeadByUuid(leadUuid); err != nil {
-					resMsg = err.Error()
+				if crm != nil {
+					if err := crm.CheckLeadByUuid(leadUuid); err != nil {
+						resMsg = err.Error()
+					}
 				} else {
-					resMsg = fmt.Sprintf("Проверка формы успешно завершена | Название: %s | Ссылка: %s", f.Name, f.Url)
+					resMsg = fmt.Sprintf("Форма успешно отправленна | %s", f.GetPrevMsg())
 				}
 			} else {
-				resMsg = fmt.Sprintf("Форма успешно отправленна (без uuid) | Название: %s | Ссылка: %s", f.Name, f.Url)
+				resMsg = fmt.Sprintf("Форма успешно отправленна (без uuid) | %s", f.GetPrevMsg())
 			}
 
-			if err := tg.SendMessage(resMsg); err != nil {
-				log.Println(err.Error())
+			if tg != nil {
+				if err := tg.SendMessage(resMsg); err != nil {
+					log.Println(err.Error())
+				}
+			} else {
+				log.Println(resMsg)
 			}
 		}(&wg, ch, &f)
 	}

@@ -1,5 +1,7 @@
 package form
 
+import "fmt"
+
 type Form struct {
 	Id           int     `db:"id" json:"id"`
 	Name         string  `db:"name" json:"name"`
@@ -21,4 +23,8 @@ type Input struct {
 	ForUuid   bool   `db:"for_uuid" json:"for_uuid"`
 	CreatedAt string `db:"created_at" json:"created_at"`
 	UpdatedAt string `db:"updated_at" json:"updated_at"`
+}
+
+func (f *Form) GetPrevMsg() string {
+	return fmt.Sprintf("Название: %s | Ссылка: %s\n", f.Name, f.Url)
 }

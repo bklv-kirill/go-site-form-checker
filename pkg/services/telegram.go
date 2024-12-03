@@ -22,6 +22,10 @@ type Telegram struct {
 }
 
 func NewTelegram(cfg *config.Config) *Telegram {
+	if cfg.TelegramChatId == "" || cfg.TelegramBotToken == "" {
+		return nil
+	}
+
 	return &Telegram{
 		ChatId:    cfg.TelegramChatId,
 		BotToken:  cfg.TelegramBotToken,
@@ -61,7 +65,7 @@ func (t *Telegram) SendMessage(text string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf(resp.Status)
+		return fmt.Errorf("При отправке сообщения в телеграм произошла ошибка: %s | Сообщение: %s", resp.Status, text)
 	}
 
 	return nil

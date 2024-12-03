@@ -19,6 +19,10 @@ type Crm struct {
 }
 
 func NewCrm(cfg *config.Config) *Crm {
+	if cfg.CrmUrl == "" || cfg.CrmToken == "" {
+		return nil
+	}
+
 	return &Crm{
 		DebugMode:  cfg.DebugMode,
 		Url:        cfg.CrmUrl,
