@@ -12,5 +12,3 @@ RUN go mod download && \
     go mod tidy
 
 RUN go build cmd/main/main.go
-
-RUN mkdir bin

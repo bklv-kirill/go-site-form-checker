@@ -23,6 +23,38 @@ services:
     networks:
       - site_form_checker
 
+  mariadb:
+    image: mariadb:11.1.2
+    container_name: ${APP_NAME}_mariadb
+    expose:
+      - "3306/tcp"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    environment:
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASS}
+      - MARIADB_ROOT_PASSWORD=${DB_PASS}
+      - MARIADB_DATABASE=${DB_NAME}
+    depends_on:
+      - phpmyadmin
+    networks:
+      - site_form_checker
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: ${APP_NAME}_phpmyadmin
+    restart: always
+    expose:
+      - "80/tcp"
+    ports:
+      - "8092:80"
+    environment:
+      - PMA_HOST=mariadb
+    networks:
+      - site_form_checker
+
 networks:
   site_form_checker:
     name: site_form_checker
