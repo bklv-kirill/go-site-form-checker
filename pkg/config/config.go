@@ -1,17 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
-	"log"
 	"os"
 	"strconv"
 )
-
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Файл .env не найден: %s", err.Error())
-	}
-}
 
 type Config struct {
 	DbCon  string
@@ -43,6 +37,10 @@ type Config struct {
 }
 
 func New() *Config {
+	if err := godotenv.Load(); err != nil {
+		panic(fmt.Sprintf("файл .env не найден: %s", err.Error()))
+	}
+
 	return &Config{
 		DbCon:  getEnvAsString("DB_CON", "mysql"),
 		DbHost: getEnvAsString("DB_HOST", "127.0.0.1"),

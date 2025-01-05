@@ -62,7 +62,10 @@ func (t *Telegram) SendMessage(text string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("При отправке сообщения в телеграм произошла ошибка: %s | Сообщение: %s", resp.Status, text)

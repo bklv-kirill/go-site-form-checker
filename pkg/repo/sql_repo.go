@@ -1,22 +1,23 @@
-package storage
+package repo
 
 import (
 	"fmt"
 	"github.com/bklv-kirill/go-site-form-checker/pkg/config"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
-type SqlStorage struct {
+type SqlRepo struct {
 	Db *sqlx.DB
 }
 
-func NewSqlStorage(cfg *config.Config) (*SqlStorage, error) {
+func NewSqlRepo(cfg *config.Config) (*SqlRepo, error) {
 	db, err := sqlx.Connect(cfg.DbCon, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", cfg.DbUser, cfg.DbPass, cfg.DbHost, cfg.DbPort, cfg.DbName))
 	if err != nil {
 		return nil, err
 	}
 
-	return &SqlStorage{
+	return &SqlRepo{
 		Db: db,
 	}, nil
 }

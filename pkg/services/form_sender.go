@@ -33,7 +33,7 @@ func NewFormSender(cfg *config.Config) *FormSender {
 	}
 }
 
-func (fs *FormSender) SendForm(f *form.Form) (string, error) {
+func (fs *FormSender) SendForm(f *models.Form) (string, error) {
 	for a := 1; a <= fs.Attempts; a++ {
 		leadUuid, err := fs.execSendForm(f)
 		if err == nil {
@@ -54,7 +54,7 @@ func (fs *FormSender) SendForm(f *form.Form) (string, error) {
 	return "", fmt.Errorf("При отправке формы произошла неизвестная ошибка | %s", f.GetPrevMsg())
 }
 
-func (fs *FormSender) execSendForm(f *form.Form) (string, error) {
+func (fs *FormSender) execSendForm(f *models.Form) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(fs.Timeout)*time.Second)
 	defer cancel()
 
@@ -158,7 +158,7 @@ func (fs *FormSender) waitExpElem(ctx context.Context, expElem string) error {
 	return nil
 }
 
-func (fs *FormSender) fillForm(ctx context.Context, f *form.Form) (string, error) {
+func (fs *FormSender) fillForm(ctx context.Context, f *models.Form) (string, error) {
 	if fs.DebugMode {
 		log.Println("Заполнение формы")
 	}
@@ -177,7 +177,7 @@ func (fs *FormSender) fillForm(ctx context.Context, f *form.Form) (string, error
 	return leadUuid, nil
 }
 
-func (fs *FormSender) sendForm(ctx context.Context, f *form.Form) error {
+func (fs *FormSender) sendForm(ctx context.Context, f *models.Form) error {
 	if fs.DebugMode {
 		log.Println("Отправка формы")
 	}

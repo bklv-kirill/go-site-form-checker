@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/bklv-kirill/go-site-form-checker/pkg/config"
 	"github.com/bklv-kirill/go-site-form-checker/pkg/models"
+	formRepo "github.com/bklv-kirill/go-site-form-checker/pkg/repo/form"
 	"github.com/bklv-kirill/go-site-form-checker/pkg/services"
-	"github.com/bklv-kirill/go-site-form-checker/pkg/storage/form"
 	"log"
 	"sync"
 )
@@ -13,17 +13,17 @@ import (
 func main() {
 	var cfg *config.Config = config.New()
 
-	formSqlStrg, err := formStorage.NewFormSqlStorage(cfg)
+	formSqlRepo, err := formRepo.NewSqlRepo(cfg)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	fs, err := formSqlStrg.GetAllWithInputs()
+	fs, err := formSqlRepo.GetAllWithInputs()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	var fsndr *services.FormSender = services.NewFormSender(cfg)
+	var formSender *services.FormSender = services.NewFormSender(cfg)
 	var crm *services.Crm = services.NewCrm(cfg)
 	var tg *services.Telegram = services.NewTelegram(cfg)
 
@@ -34,7 +34,7 @@ func main() {
 		wg.Add(1)
 		ch <- struct{}{}
 
-		go func(wg *sync.WaitGroup, ch <-chan struct{}, f *form.Form) {
+		go func(wg *sync.WaitGroup, ch <-chan struct{}, f *models.Form) {
 			defer func() {
 				wg.Done()
 				<-ch
@@ -42,13 +42,15 @@ func main() {
 
 			var resMsg string
 
-			leadUuid, err := fsndr.SendForm(f)
+			leadUuid, err := formSender.SendForm(f)
 			if err != nil {
 				resMsg = err.Error()
 			} else if leadUuid != "" {
 				if crm != nil {
 					if err := crm.CheckLeadByUuid(leadUuid); err != nil {
 						resMsg = err.Error()
+					} else {
+						resMsg = fmt.Sprintf("Форма успешно проверена | %s", f.GetPrevMsg())
 					}
 				} else {
 					resMsg = fmt.Sprintf("Форма успешно отправленна | %s", f.GetPrevMsg())
